@@ -1,6 +1,8 @@
 
 import websocket from "websocket";
 
+import FileProxy from "./fileProxy";
+
 
 
 const acceptFrontendConnection = request => {
@@ -10,13 +12,17 @@ const acceptFrontendConnection = request => {
 	connection.on("close", (reasonCode, description) => {
 		console.log("[web-editor] frontend quit:", connection.remoteAddress, reasonCode, description);
 
-		// TODO:
+		// TODO: dispose file proxy
 	});
 
 	connection.on("message", message => {
 		const json = JSON.parse(message.utf8Data);
 		switch (json.command) {
-		// TODO:
+		case "bindFile": {
+			const file = new FileProxy(json.filePath);
+		}
+
+			break;
 		default:
 			console.warn("[web-editor] unexpected frontend command:", json);
 		}

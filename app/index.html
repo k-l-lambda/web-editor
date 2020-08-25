@@ -55,6 +55,7 @@
 
 			$host.value = `ws://${location.hostname}:8140`;
 
+
 			const remoteFile = new RemoteFile();
 			remoteFile.on("connected", () => {
 				$link.classList.add("active");
@@ -67,9 +68,10 @@
 				$filePath.disabled = false;
 			});
 
+
 			$link.onclick = () => {
 				if (!remoteFile.connected)
-					remoteFile.connect($host.value);
+					remoteFile.connect($host.value, $filePath.value);
 				else
 					remoteFile.close();
 			};

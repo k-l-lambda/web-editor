@@ -17,7 +17,7 @@ export default class RemoteFile extends EventEmitter {
 	}
 
 
-	connect (host: string) {
+	connect (host: string, filePath: string) {
 		if (this.socket)
 			this.socket.close();
 
@@ -28,6 +28,8 @@ export default class RemoteFile extends EventEmitter {
 
 			this.connected = true;
 			this.emit("connected");
+
+			this.socket.send(JSON.stringify({ command: "bindFile", filePath }));
 		};
 	
 		this.socket.onclose = event => {
@@ -38,7 +40,7 @@ export default class RemoteFile extends EventEmitter {
 
 			if (this.autoReconnect && event.code === 1006) {
 				console.log("[RemoteFile]	try to reconnect...");
-				setTimeout(() => this.connect(host), 100);
+				setTimeout(() => this.connect(host, filePath), 100);
 			}
 		};
 

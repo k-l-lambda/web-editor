@@ -6,7 +6,7 @@
   "browser": "app/lib/index.mjs",
   "scripts": {
     "build": "tsc && tsc --build ./tsconfig.browser.json && webpack",
-    "serve": "http-server ./app",
+    "serve": "http-server ./app & tsc --build ./tsconfig.browser.json -w & webpack --watch",
     "dev": "ts-node-dev ./main.ts",
     "test-pack": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
     "prepublishOnly": "npm run build"
