@@ -1,0 +1,5 @@
+app/
+backend/
+.eslintrc.js
+index.ts
+app.ts
