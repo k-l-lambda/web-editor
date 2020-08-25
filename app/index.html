@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>WebEditor</title>
+	</head>
+	<body>
+		<textarea id="editor">
+
+		</textarea>
+		<script type="module">
+			import {RemoteFile} from "./lib/index.frontend.js";
+
+			const editor = document.querySelector("#editor");
+			console.log("RemoteFile:", RemoteFile, editor);
+		</script>
+	</body>
+</html>

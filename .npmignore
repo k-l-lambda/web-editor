@@ -1,5 +1,12 @@
-app/
+#app/
 backend/
+footages/
+
 .eslintrc.js
 index.ts
+index.frontend.ts
 app.ts
+main.ts
+
+*.html
+*.ico
