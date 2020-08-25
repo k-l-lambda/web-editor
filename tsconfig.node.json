@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"moduleResolution": "node",
+		"downlevelIteration": true,
+		"lib": ["es2017"],
+		"target": "es6",
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"declaration": true,
+		"outDir": "lib"
+	},
+	"include": [
+		"index.ts",
+		"backend/**/*.ts"
+	],
+}
