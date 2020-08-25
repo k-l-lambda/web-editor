@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A WebSocket based text file synchronizer.",
   "main": "lib/index.js",
-  "browser": "app/lib/webEditor.js",
+  "browser": "app/lib/index.mjs",
   "scripts": {
     "build": "tsc && tsc --build ./tsconfig.browser.json && webpack",
     "serve": "http-server ./app",

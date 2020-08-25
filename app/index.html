@@ -53,17 +53,26 @@
 			const $link = document.querySelector("#link");
 			const $editor = document.querySelector("#editor");
 
-			$host.value = `ws://${location.host}`;
+			$host.value = `ws://${location.hostname}:8140`;
 
 			const remoteFile = new RemoteFile();
-			remoteFile.on("connected", () => $link.classList.add("active"));
-			remoteFile.on("disconnected", () => $link.classList.remove("active"));
+			remoteFile.on("connected", () => {
+				$link.classList.add("active");
+				$host.disabled = true;
+				$filePath.disabled = true;
+			});
+			remoteFile.on("disconnected", () => {
+				$link.classList.remove("active");
+				$host.disabled = false;
+				$filePath.disabled = false;
+			});
 
-			$link.onclick = () => remoteFile.connect($host.value);
+			$link.onclick = () => {
+				if (!remoteFile.connected)
+					remoteFile.connect($host.value);
+				else
+					remoteFile.close();
+			};
 		</script>
-		<!--script src="./lib/index-bundle.js"></script>
-		<script>
-			//console.log("webEditor:", webEditor);
-		</script-->
 	</body>
 </html>

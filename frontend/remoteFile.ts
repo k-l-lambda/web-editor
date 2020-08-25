@@ -7,6 +7,7 @@ export default class RemoteFile extends EventEmitter {
 	autoReconnect: boolean;
 
 	socket: WebSocket;
+	connected: boolean = false;
 
 
 	constructor ({autoReconnect = false} = {}) {
@@ -20,15 +21,19 @@ export default class RemoteFile extends EventEmitter {
 		if (this.socket)
 			this.socket.close();
 
-		this.socket = new WebSocket(host, "synchronizer-watcher");
+		this.socket = new WebSocket(host, "editor-frontend");
 
 		this.socket.onopen = () => {
 			console.debug("[RemoteFile]	socket open.");
+
+			this.connected = true;
 			this.emit("connected");
 		};
 	
 		this.socket.onclose = event => {
 			console.warn("Synchronizer service socket closed:", event.code, event.reason);
+
+			this.connected = false;
 			this.emit("disconnected");
 
 			if (this.autoReconnect && event.code === 1006) {
@@ -44,5 +49,10 @@ export default class RemoteFile extends EventEmitter {
 				console.warn("[RemoteFile]	unexpected command:", message);
 			}
 		};
+	}
+
+
+	close () {
+		this.socket.close();
 	}
 };
