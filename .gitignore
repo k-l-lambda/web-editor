@@ -1,5 +1,6 @@
 node_modules/
 footages/
 lib/
+lib.browser/
 app/lib/
 yarn.lock

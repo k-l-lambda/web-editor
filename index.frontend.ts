@@ -1,5 +1,5 @@
 
-import RemoteFile from "./frontend/remoteFile.js";
+import RemoteFile from "./frontend/remoteFile";
 
 
 

@@ -1,37 +1,17 @@
 {
 	"compilerOptions": {
-		"target": "es5",
-		"module": "es2015",
-		"strict": false,
-		"importHelpers": true,
-		"moduleResolution": "classic",
-		"experimentalDecorators": true,
+		"moduleResolution": "node",
+		"downlevelIteration": true,
+		"lib": ["es2017"],
+		"target": "es6",
+		"module": "commonjs",
 		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"sourceMap": true,
-		"baseUrl": ".",
-		"paths": {
-			"@/*": [
-				"app/*"
-			]
-		},
-		"lib": [
-			"es2016",
-			"es5",
-			"dom",
-			"dom.iterable",
-			"scripthost"
-		],
-		"skipLibCheck": true,
-		"noImplicitAny": false,
+		"resolveJsonModule": true,
 		"declaration": true,
-		"outDir": "app/lib"
+		"outDir": "lib"
 	},
 	"include": [
-		"index.frontend.ts",
-		"frontend/**/*.ts",
+		"index.ts",
+		"backend/**/*.ts"
 	],
-	"exclude": [
-		"./node_modules/*"
-	]
 }

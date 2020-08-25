@@ -2,16 +2,68 @@
 <html>
 	<head>
 		<title>WebEditor</title>
+		<style>
+			html
+			{
+				width: 100%;
+				height: 100%;
+				display: flex;
+			}
+
+			body
+			{
+				flex: 1 1 auto;
+				display: flex;
+			}
+
+			body > main
+			{
+				flex: 1 1 auto;
+				display: flex;
+				flex-direction: column;
+			}
+
+			#editor
+			{
+				flex: 1 1 auto;
+			}
+
+			#link.active
+			{
+				background-color: #cfc;
+			}
+		</style>
 	</head>
 	<body>
-		<textarea id="editor">
-
-		</textarea>
+		<main>
+			<p>
+				<input type="text" id="host" placeholder="host" />
+				<input type="text" id="file-path" placeholder="file path" />
+				<button id="link">&#x1f517;</button>
+			</p>
+			<textarea id="editor"></textarea>
+		</main>
 		<script type="module">
-			import {RemoteFile} from "./lib/index.frontend.js";
+			import {RemoteFile} from "./lib/index.mjs";
 
-			const editor = document.querySelector("#editor");
-			console.log("RemoteFile:", RemoteFile, editor);
+
+
+			const $host = document.querySelector("#host");
+			const $filePath = document.querySelector("#file-path");
+			const $link = document.querySelector("#link");
+			const $editor = document.querySelector("#editor");
+
+			$host.value = `ws://${location.host}`;
+
+			const remoteFile = new RemoteFile();
+			remoteFile.on("connected", () => $link.classList.add("active"));
+			remoteFile.on("disconnected", () => $link.classList.remove("active"));
+
+			$link.onclick = () => remoteFile.connect($host.value);
 		</script>
+		<!--script src="./lib/index-bundle.js"></script>
+		<script>
+			//console.log("webEditor:", webEditor);
+		</script-->
 	</body>
 </html>
