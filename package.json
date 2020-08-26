@@ -1,8 +1,9 @@
 {
   "name": "@k-l-lambda/web-editor",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A WebSocket based text file synchronizer.",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "browser": "app/lib/index.mjs",
   "scripts": {
     "build": "tsc && tsc --build ./tsconfig.browser.json && webpack",
