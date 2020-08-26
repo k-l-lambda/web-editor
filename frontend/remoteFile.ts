@@ -1,6 +1,7 @@
 
 import {EventEmitter} from "events";
 import sha1 from "sha1";
+import * as diff from "diff";
 
 
 
@@ -21,7 +22,7 @@ export default class RemoteFile extends EventEmitter {
 
 
 	get hash (): string {
-		return sha1(this._content);
+		return sha1(this._content) as string;
 	}
 
 
@@ -67,9 +68,24 @@ export default class RemoteFile extends EventEmitter {
 				break;
 			case "fullSync":
 				this._content = message.content;
-				console.assert(this.hash === message.hash, "[RemoteFile] hash mismatched:", this.hash, message.hash);
+				console.assert(this.hash === message.hash, "[RemoteFile] verify failed:", this.hash, message.hash);
 
 				this.emit("sync");
+
+				break;
+			case "increase":
+				//console.log("increase:", this.hash, message);
+				if (this.hash !== message.fromHash) {
+					console.warn("hash mismatched:", this.hash, message.fromHash);
+
+					// TODO: request fullSync
+				}
+				else {
+					this._content = diff.applyPatch(this._content, message.patch);
+					console.assert(this.hash === message.toHash, "[RemoteFile] verify failed:", this.hash, message.toHash);
+
+					this.emit("sync");
+				}
 
 				break;
 			default:

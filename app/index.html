@@ -70,10 +70,13 @@
 				$link.classList.remove("active");
 				$host.disabled = false;
 				$filePath.disabled = false;
+				$editor.value = null;
 			});
 
 			remoteFile.on("sync", () => {
 				$editor.value = remoteFile.content;
+
+				console.debug("Remote file sync.");
 			})
 
 

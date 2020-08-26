@@ -32,8 +32,18 @@ const acceptFrontendConnection = (request, options: ServerOptions) => {
 				const filePath = path.resolve(options.rootDir, json.filePath);
 				const file = new FileProxy(filePath);
 
+				file.on("error", err => connection.sendUTF(JSON.stringify({
+					command: "failure",
+					...err,
+				})));
+
 				file.on("fullSync", data => connection.sendUTF(JSON.stringify({
 					command: "fullSync",
+					...data,
+				})));
+
+				file.on("increase", data => connection.sendUTF(JSON.stringify({
+					command: "increase",
 					...data,
 				})));
 			}
