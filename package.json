@@ -1,7 +1,12 @@
 {
   "name": "@k-l-lambda/web-editor",
   "version": "0.1.1",
-  "description": "A WebSocket based text file synchronizer.",
+  "description": "A WebSocket based text file synchronizer between disk and web browser.",
+  "keywords": [
+    "websocket",
+    "text",
+    "synchronize"
+  ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "browser": "app/lib/index.mjs",
