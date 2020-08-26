@@ -66,6 +66,15 @@ const acceptFrontendConnection = (request, options: ServerOptions) => {
 			}
 
 			break;
+		case "requestFullSync":
+			if (!file)
+				sendCommand("failure", {description: "no file bound yet"});
+			else {
+				console.assert(json.timestamp < file.timestamp, "[web-editor] requestFullSync sent from a newer peer:", new Date(json.timestamp), new Date(file.timestamp));
+				file.fullSync();
+			}
+
+			break;
 		default:
 			console.warn("[web-editor] unexpected frontend command:", json);
 		}

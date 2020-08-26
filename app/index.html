@@ -81,11 +81,6 @@
 				console.debug("Remote file sync:", new Date(timestamp));
 			})
 
-			remoteFile.on("requestFullSync", () => {
-				console.log("on requestFullSync");
-				// TODO:
-			})
-
 
 			$link.onclick = () => {
 				if (!remoteFile.connected)

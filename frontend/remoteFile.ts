@@ -107,7 +107,7 @@ export default class RemoteFile extends EventEmitter {
 						break;
 
 					console.warn("hash mismatched:", this.hash, message.fromHash);
-					this.emit("requestFullSync");
+					this.socket.send(JSON.stringify({ command: "requestFullSync", timestamp: this.timestamp}));
 				}
 				else {
 					this.timestamp = message.timestamp;
