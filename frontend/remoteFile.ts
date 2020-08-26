@@ -47,6 +47,11 @@ export default class RemoteFile extends EventEmitter {
 		this.socket.onmessage = event => {
 			const message = JSON.parse(event.data);
 			switch (message.command) {
+			case "failure":
+				console.warn("service failure:", message.description);
+				this.close();
+
+				break;
 			default:
 				console.warn("[RemoteFile]	unexpected command:", message);
 			}

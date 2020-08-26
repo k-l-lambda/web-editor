@@ -1,11 +1,20 @@
 
+import path from "path";
 import websocket from "websocket";
+// eslint-disable-next-line
+import { Server } from "net";
 
 import FileProxy from "./fileProxy";
 
 
 
-const acceptFrontendConnection = request => {
+interface ServerOptions {
+	rootDir: string;
+};
+
+
+
+const acceptFrontendConnection = (request, options: ServerOptions) => {
 	const connection = request.accept("editor-frontend", request.origin);
 	console.log("[web-editor] frontend accepted:", request.origin, connection.remoteAddress);
 
@@ -18,9 +27,15 @@ const acceptFrontendConnection = request => {
 	connection.on("message", message => {
 		const json = JSON.parse(message.utf8Data);
 		switch (json.command) {
-		case "bindFile": {
-			const file = new FileProxy(json.filePath);
-		}
+		case "bindFile":
+			try {
+				const filePath = path.resolve(options.rootDir, json.filePath);
+				const file = new FileProxy(filePath);
+			}
+			catch (err) {
+				console.warn("bindFile failed:", err);
+				connection.sendUTF(JSON.stringify({ command: "failure", description: err.toString() }));
+			}
 
 			break;
 		default:
@@ -32,7 +47,7 @@ const acceptFrontendConnection = request => {
 };
 
 
-export function createServer (httpServer) {
+export function createServer (httpServer: Server, options: ServerOptions) {
 	const server = new websocket.server({
 		httpServer,
 		maxReceivedFrameSize: 0x1000000,
@@ -44,7 +59,7 @@ export function createServer (httpServer) {
 		//console.log("[Synchronizer] request received:", request.origin);
 
 		if (request.requestedProtocols.includes("editor-frontend"))
-			acceptFrontendConnection(request);
+			acceptFrontendConnection(request, options);
 		else
 			console.warn("Unexpected subprotocol request:", request.origin, request.requestedProtocols);
 	});

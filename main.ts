@@ -1,4 +1,5 @@
 
+import path from "path";
 import http from "http";
 import {argv} from "yargs";
 import ip from "ip";
@@ -17,4 +18,4 @@ httpServer.listen(port, host, () => {
 });
 
 
-service.createServer(httpServer);
+service.createServer(httpServer, {rootDir: path.resolve(__dirname, "./app/assets")});

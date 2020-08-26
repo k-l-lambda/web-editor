@@ -1,7 +1,7 @@
 
 #	web-editor ![logo](./app/favicon.ico)
 
-A WebSocket based text file synchronizer.
+A WebSocket based text file synchronizer between disk and web browser.
 
 ## Installation
 
