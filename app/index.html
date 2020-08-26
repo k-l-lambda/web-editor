@@ -41,7 +41,7 @@
 				<input type="text" id="file-path" placeholder="file path" />
 				<button id="link">&#x1f517;</button>
 			</p>
-			<textarea id="editor"></textarea>
+			<textarea id="editor" placeholder="to be connected"></textarea>
 		</main>
 		<script type="module">
 			import {RemoteFile} from "./lib/index.mjs";
@@ -56,8 +56,11 @@
 			$host.value = `ws://${location.hostname}:8140`;
 			$filePath.value = "test.txt";
 
+			$editor.disabled = true;
+
 
 			const remoteFile = new RemoteFile();
+
 			remoteFile.on("connected", () => {
 				$link.classList.add("active");
 				$host.disabled = true;
@@ -68,6 +71,10 @@
 				$host.disabled = false;
 				$filePath.disabled = false;
 			});
+
+			remoteFile.on("sync", () => {
+				$editor.value = remoteFile.content;
+			})
 
 
 			$link.onclick = () => {

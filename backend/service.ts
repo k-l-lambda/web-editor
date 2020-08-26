@@ -31,6 +31,11 @@ const acceptFrontendConnection = (request, options: ServerOptions) => {
 			try {
 				const filePath = path.resolve(options.rootDir, json.filePath);
 				const file = new FileProxy(filePath);
+
+				file.on("fullSync", data => connection.sendUTF(JSON.stringify({
+					command: "fullSync",
+					...data,
+				})));
 			}
 			catch (err) {
 				console.warn("bindFile failed:", err);

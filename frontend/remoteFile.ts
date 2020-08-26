@@ -1,5 +1,6 @@
 
 import {EventEmitter} from "events";
+import sha1 from "sha1";
 
 
 
@@ -9,11 +10,23 @@ export default class RemoteFile extends EventEmitter {
 	socket: WebSocket;
 	connected: boolean = false;
 
+	_content: string;
+
 
 	constructor ({autoReconnect = false} = {}) {
 		super();
 
 		this.autoReconnect = autoReconnect;
+	}
+
+
+	get hash (): string {
+		return sha1(this._content);
+	}
+
+
+	get content (): string {
+		return this._content;
 	}
 
 
@@ -50,6 +63,13 @@ export default class RemoteFile extends EventEmitter {
 			case "failure":
 				console.warn("service failure:", message.description);
 				this.close();
+
+				break;
+			case "fullSync":
+				this._content = message.content;
+				console.assert(this.hash === message.hash, "[RemoteFile] hash mismatched:", this.hash, message.hash);
+
+				this.emit("sync");
 
 				break;
 			default:
