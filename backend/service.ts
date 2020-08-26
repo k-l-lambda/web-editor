@@ -5,6 +5,7 @@ import websocket from "websocket";
 import { Server } from "net";
 
 import FileProxy from "./fileProxy";
+import { command } from "yargs";
 
 
 
@@ -24,32 +25,41 @@ const acceptFrontendConnection = (request, options: ServerOptions) => {
 		// TODO: dispose file proxy
 	});
 
+	const sendCommand = (command: string, data: object) => connection.sendUTF(JSON.stringify({
+		command,
+		...data,
+	}));
+
+	let file = null;
+
 	connection.on("message", message => {
 		const json = JSON.parse(message.utf8Data);
 		switch (json.command) {
 		case "bindFile":
 			try {
 				const filePath = path.resolve(options.rootDir, json.filePath);
-				const file = new FileProxy(filePath);
+				file = new FileProxy(filePath);
 
-				file.on("error", err => connection.sendUTF(JSON.stringify({
-					command: "failure",
-					...err,
-				})));
-
-				file.on("fullSync", data => connection.sendUTF(JSON.stringify({
-					command: "fullSync",
-					...data,
-				})));
-
-				file.on("increase", data => connection.sendUTF(JSON.stringify({
-					command: "increase",
-					...data,
-				})));
+				file.on("error", err => sendCommand("failure", err));
+				file.on("fullSync", data => sendCommand("fullSync", data));
+				file.on("increase", data => sendCommand("increase", data));
 			}
 			catch (err) {
 				console.warn("bindFile failed:", err);
 				connection.sendUTF(JSON.stringify({ command: "failure", description: err.toString() }));
+			}
+
+			break;
+		case "increase":
+			if (!file)
+				sendCommand("failure", {description: "no file bound yet"});
+			else {
+				file.increase({
+					timestamp: json.timestamp,
+					fromHash: json.fromHash,
+					toHash: json.toHash,
+					patch: json.patch,
+				});
 			}
 
 			break;

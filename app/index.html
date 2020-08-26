@@ -65,11 +65,13 @@
 				$link.classList.add("active");
 				$host.disabled = true;
 				$filePath.disabled = true;
+				$editor.disabled = false;
 			});
 			remoteFile.on("disconnected", () => {
 				$link.classList.remove("active");
 				$host.disabled = false;
 				$filePath.disabled = false;
+				$editor.disabled = true;
 				$editor.value = null;
 			});
 
@@ -79,12 +81,23 @@
 				console.debug("Remote file sync:", new Date(timestamp));
 			})
 
+			remoteFile.on("requestFullSync", () => {
+				console.log("on requestFullSync");
+				// TODO:
+			})
+
 
 			$link.onclick = () => {
 				if (!remoteFile.connected)
 					remoteFile.connect($host.value, $filePath.value);
 				else
 					remoteFile.close();
+			};
+
+
+			$editor.onchange = () => {
+				//console.log("editor text changed:", $editor.value);
+				remoteFile.content = $editor.value;
 			};
 		</script>
 	</body>

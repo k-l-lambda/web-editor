@@ -11,10 +11,13 @@ import asyncCall from "./asyncCall";
 export default class FileProxy extends EventEmitter {
 	content: string;
 	timestamp: number;
+	filePath: string;
 
 
 	constructor (filePath: string) {
 		super();
+
+		this.filePath = filePath;
 
 		//console.log("File proxy created:", filePath);
 		if (!fs.existsSync(filePath))
@@ -66,5 +69,30 @@ export default class FileProxy extends EventEmitter {
 			content: this.content,
 			hash: this.hash,
 		});
+	}
+
+
+	increase ({timestamp, fromHash, toHash, patch}: {
+		timestamp: number,
+		fromHash: string,
+		toHash: string,
+		patch: string,
+	}) {
+		if (this.hash !== fromHash) {
+			if (this.timestamp > timestamp)
+				// web content is out of date
+				this.fullSync();
+			else
+				console.warn("[FileProxy] disk file content is behind increase base:", this.timestamp, timestamp);
+		}
+		else {
+			const content = diff.applyPatch(this.content, patch);
+			const hash = sha1(content);
+
+			console.assert(hash === toHash, "[FileProxy] verify failed:", this.hash, toHash, content);
+
+			if (hash === toHash)
+				asyncCall(fs.writeFile, this.filePath, content);
+		}
 	}
 };

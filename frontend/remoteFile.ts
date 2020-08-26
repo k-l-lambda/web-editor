@@ -4,12 +4,12 @@ import sha1 from "sha1";
 import * as diff from "diff";
 
 
-
 export default class RemoteFile extends EventEmitter {
 	autoReconnect: boolean;
 
 	socket: WebSocket;
 	connected: boolean = false;
+	filePath: string;
 
 	timestamp: number;
 	_content: string;
@@ -29,6 +29,24 @@ export default class RemoteFile extends EventEmitter {
 
 	get content (): string {
 		return this._content;
+	}
+
+
+	set content (value: string) {
+		const timestamp = Date.now();
+
+		const patch = diff.createPatch(this.filePath, this._content, value);
+
+		this.socket.send(JSON.stringify({
+			command: "increase",
+			timestamp,
+			fromHash: this.hash,
+			toHash: sha1(value),
+			patch,
+		}));
+
+		this.timestamp = timestamp;
+		this._content = value;
 	}
 
 
@@ -77,10 +95,19 @@ export default class RemoteFile extends EventEmitter {
 				break;
 			case "increase":
 				//console.log("increase:", this.hash, message);
-				if (this.hash !== message.fromHash) {
-					console.warn("hash mismatched:", this.hash, message.fromHash);
 
-					// TODO: request fullSync
+				// already consistent with remote, update timestemp only
+				if (this.hash === message.toHash) {
+					this.timestamp = Math.max(this.timestamp, message.timestamp);
+					break;
+				}
+
+				if (this.hash !== message.fromHash) {
+					if (message.timestamp < this.timestamp)
+						break;
+
+					console.warn("hash mismatched:", this.hash, message.fromHash);
+					this.emit("requestFullSync");
 				}
 				else {
 					this.timestamp = message.timestamp;
@@ -95,6 +122,8 @@ export default class RemoteFile extends EventEmitter {
 				console.warn("[RemoteFile]	unexpected command:", message);
 			}
 		};
+
+		this.filePath = filePath;
 	}
 
 
