@@ -19,18 +19,21 @@ const acceptFrontendConnection = (request, options: ServerOptions) => {
 	const connection = request.accept("editor-frontend", request.origin);
 	console.log("[web-editor] frontend accepted:", request.origin, connection.remoteAddress);
 
+	let file = null;
+
 	connection.on("close", (reasonCode, description) => {
 		console.log("[web-editor] frontend quit:", connection.remoteAddress, reasonCode, description);
 
-		// TODO: dispose file proxy
+		if (file) {
+			file.dispose();
+			file = null;
+		}
 	});
 
 	const sendCommand = (command: string, data: object) => connection.sendUTF(JSON.stringify({
 		command,
 		...data,
 	}));
-
-	let file = null;
 
 	connection.on("message", message => {
 		const json = JSON.parse(message.utf8Data);

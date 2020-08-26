@@ -13,6 +13,8 @@ export default class FileProxy extends EventEmitter {
 	timestamp: number;
 	filePath: string;
 
+	fileListener: (curr: fs.Stats) => Promise<void>;
+
 
 	constructor (filePath: string) {
 		super();
@@ -34,7 +36,7 @@ export default class FileProxy extends EventEmitter {
 				this.fullSync();
 			});
 
-		fs.watchFile(filePath, async (current, previous) => {
+		this.fileListener = async current => {
 			this.timestamp = current.mtime.getTime();
 
 			const buffer = await asyncCall(fs.readFile, filePath);
@@ -54,7 +56,15 @@ export default class FileProxy extends EventEmitter {
 			});
 
 			this.content = newContent;
-		});
+		};
+
+		fs.watchFile(filePath, this.fileListener);
+	}
+
+
+	dispose () {
+		if (this.fileListener)
+			fs.unwatchFile(this.filePath, this.fileListener);
 	}
 
 
