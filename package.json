@@ -17,6 +17,13 @@
     "test-pack": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
     "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/k-l-lambda/web-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/k-l-lambda/web-editor/issues"
+  },
   "author": "k-l-lambda <k.l.lambda@gmail.com> (https://k-l-lambda.github.io)",
   "license": "ISC",
   "dependencies": {
