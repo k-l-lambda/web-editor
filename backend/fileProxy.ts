@@ -10,6 +10,7 @@ import asyncCall from "./asyncCall";
 
 export default class FileProxy extends EventEmitter {
 	content: string;
+	timestamp: number;
 
 
 	constructor (filePath: string) {
@@ -19,13 +20,20 @@ export default class FileProxy extends EventEmitter {
 		if (!fs.existsSync(filePath))
 			throw new Error(`file not exist: ${filePath}`);
 
-		asyncCall(fs.readFile, filePath)
+		asyncCall(fs.stat, filePath)
+			.then(stats => {
+				this.timestamp = stats.mtime.getTime();
+
+				return asyncCall(fs.readFile, filePath);
+			})
 			.then(buffer => {
 				this.content = buffer.toString();
 				this.fullSync();
 			});
 
 		fs.watchFile(filePath, async (current, previous) => {
+			this.timestamp = current.mtime.getTime();
+
 			const buffer = await asyncCall(fs.readFile, filePath);
 			if (!buffer) {
 				this.emit("error", {description: "file reading failed"});
@@ -36,6 +44,7 @@ export default class FileProxy extends EventEmitter {
 			const patch = diff.createPatch(filePath, this.content, newContent);
 
 			this.emit("increase", {
+				timestamp: this.timestamp,
 				fromHash: this.hash,
 				toHash: sha1(newContent),
 				patch,
@@ -53,6 +62,7 @@ export default class FileProxy extends EventEmitter {
 
 	fullSync () {
 		this.emit("fullSync", {
+			timestamp: this.timestamp,
 			content: this.content,
 			hash: this.hash,
 		});

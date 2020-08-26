@@ -73,10 +73,10 @@
 				$editor.value = null;
 			});
 
-			remoteFile.on("sync", () => {
+			remoteFile.on("sync", ({timestamp}) => {
 				$editor.value = remoteFile.content;
 
-				console.debug("Remote file sync.");
+				console.debug("Remote file sync:", new Date(timestamp));
 			})
 
 

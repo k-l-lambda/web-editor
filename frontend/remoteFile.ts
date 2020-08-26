@@ -11,6 +11,7 @@ export default class RemoteFile extends EventEmitter {
 	socket: WebSocket;
 	connected: boolean = false;
 
+	timestamp: number;
 	_content: string;
 
 
@@ -67,10 +68,11 @@ export default class RemoteFile extends EventEmitter {
 
 				break;
 			case "fullSync":
+				this.timestamp = message.timestamp;
 				this._content = message.content;
 				console.assert(this.hash === message.hash, "[RemoteFile] verify failed:", this.hash, message.hash);
 
-				this.emit("sync");
+				this.emit("sync", {timestamp: this.timestamp});
 
 				break;
 			case "increase":
@@ -81,10 +83,11 @@ export default class RemoteFile extends EventEmitter {
 					// TODO: request fullSync
 				}
 				else {
+					this.timestamp = message.timestamp;
 					this._content = diff.applyPatch(this._content, message.patch);
 					console.assert(this.hash === message.toHash, "[RemoteFile] verify failed:", this.hash, message.toHash);
 
-					this.emit("sync");
+					this.emit("sync", {timestamp: this.timestamp});
 				}
 
 				break;
