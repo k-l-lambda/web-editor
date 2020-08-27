@@ -4,3 +4,4 @@ lib/
 lib.browser/
 app/lib/
 yarn.lock
+package-lock.json
