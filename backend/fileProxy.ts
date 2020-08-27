@@ -11,7 +11,11 @@ import asyncCall from "./asyncCall";
 export default class FileProxy extends EventEmitter {
 	content: string;
 	timestamp: number;
+	diskTimestamp: number;
 	filePath: string;
+
+	alive: boolean = true;
+	writeFile: () => void;
 
 	fileListener: (curr: fs.Stats) => Promise<void>;
 
@@ -27,7 +31,8 @@ export default class FileProxy extends EventEmitter {
 
 		asyncCall(fs.stat, filePath)
 			.then(stats => {
-				this.timestamp = stats.mtime.getTime();
+				this.diskTimestamp = stats.mtime.getTime();
+				this.timestamp = this.diskTimestamp;
 
 				return asyncCall(fs.readFile, filePath);
 			})
@@ -37,7 +42,8 @@ export default class FileProxy extends EventEmitter {
 			});
 
 		this.fileListener = async current => {
-			this.timestamp = current.mtime.getTime();
+			this.diskTimestamp = current.mtime.getTime();
+			this.timestamp = this.diskTimestamp;
 
 			const buffer = await asyncCall(fs.readFile, filePath);
 			if (!buffer) {
@@ -46,25 +52,52 @@ export default class FileProxy extends EventEmitter {
 			}
 
 			const newContent = buffer.toString();
-			const patch = diff.createPatch(filePath, this.content, newContent);
+			const newHash = sha1(newContent);
+			if (newHash !== this.hash) {
+				const patch = diff.createPatch(filePath, this.content, newContent);
 
-			this.emit("increase", {
-				timestamp: this.timestamp,
-				fromHash: this.hash,
-				toHash: sha1(newContent),
-				patch,
-			});
-
-			this.content = newContent;
+				this.emit("increase", {
+					timestamp: this.timestamp,
+					fromHash: this.hash,
+					toHash: newHash,
+					patch,
+				});
+	
+				this.content = newContent;
+			}
 		};
 
 		fs.watchFile(filePath, this.fileListener);
+
+		this.keepWriteFile();
 	}
 
 
 	dispose () {
+		this.alive = false;
+
 		if (this.fileListener)
 			fs.unwatchFile(this.filePath, this.fileListener);
+	}
+
+
+	makeWritePromise (): Promise<void> {
+		return new Promise(resolve => this.writeFile = resolve);
+	}
+
+
+	async keepWriteFile () {
+		let writeSignal = this.makeWritePromise();
+
+		while (this.alive) {
+			await writeSignal;
+			writeSignal = this.makeWritePromise();
+
+			//console.debug("keepWriteFile:", this.timestamp, this.diskTimestamp);
+			if (this.timestamp > this.diskTimestamp) {
+				await asyncCall(fs.writeFile, this.filePath, this.content);
+			}
+		}
 	}
 
 
@@ -96,13 +129,13 @@ export default class FileProxy extends EventEmitter {
 				console.warn("[FileProxy] disk file content is behind increase base:", this.timestamp, timestamp);
 		}
 		else {
-			const content = diff.applyPatch(this.content, patch);
-			const hash = sha1(content);
+			this.content = diff.applyPatch(this.content, patch);
+			this.timestamp = timestamp;
 
-			console.assert(hash === toHash, "[FileProxy] verify failed:", this.hash, toHash, content);
+			console.assert(this.hash === toHash, "[FileProxy] verify failed:", this.hash, toHash, this.content);
 
-			if (hash === toHash)
-				asyncCall(fs.writeFile, this.filePath, content);
+			// trigger file writing
+			this.writeFile();
 		}
 	}
 };

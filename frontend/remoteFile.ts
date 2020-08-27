@@ -66,7 +66,7 @@ export default class RemoteFile extends EventEmitter {
 		};
 	
 		this.socket.onclose = event => {
-			console.warn("Synchronizer service socket closed:", event.code, event.reason);
+			console.debug("Synchronizer service socket closed:", event.code, event.reason);
 
 			this.connected = false;
 			this.emit("disconnected");
