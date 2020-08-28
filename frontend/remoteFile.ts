@@ -64,7 +64,7 @@ export default class RemoteFile extends EventEmitter {
 
 			this.socket.send(JSON.stringify({ command: "bindFile", filePath }));
 		};
-	
+
 		this.socket.onclose = event => {
 			console.debug("Synchronizer service socket closed:", event.code, event.reason);
 
