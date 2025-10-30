@@ -1,6 +1,6 @@
 {
   "name": "@k-l-lambda/web-editor",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A WebSocket based text file synchronizer between disk and web browser.",
   "keywords": [
     "websocket",
@@ -20,6 +20,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/k-l-lambda/web-editor.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "bugs": {
     "url": "https://github.com/k-l-lambda/web-editor/issues"
